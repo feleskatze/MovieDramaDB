@@ -1,0 +1,151 @@
+<html>
+<head>
+	<meta charset='utf-8'>
+	<title>映画・ドラマデータベース</title>
+	<link rel='stylesheet' type='text/css' href='css/main.css'>
+</head>
+<body>
+
+<div  calss='tabs'>
+	<input id='tab_show' type='radio' name='tab_item' onclick='table_all("table_all")'>
+	<label class='tab_item' for='tab_show'>表示</label>
+	
+	<input id='tab_add' type='radio' name='tab_item' checked>
+	<label class='tab_item' for='tab_add'>追加</label>
+
+	<input id='tab_search' type='radio' name='tab_item'>
+	<label class='tab_item' for='tab_search'>検索</label>
+
+<!-- 以下コンテンツ -->
+
+<!-- 表の表示 -->
+<div class='tab_content' id='show_content'>
+	<div id='table_all'>
+	</div>
+
+
+</div> <!-- class='tab_content id='show_contetn' -->
+
+<!-- 追加 -->
+<div class='tab_content' id="add_content">
+	<form name='add_form' onsubmit='add()'>
+		<p><label>タイトル:<br><input type="text" name="title" size='40'></label></p>
+		<p><label>ふりがな(ソート用のため一部のみ可):<br><input type='text' name='title_ruby' size=40></label></p>
+		<p><label>カテゴリー:<br><select name="category">
+			<option value='日本映画'>国内映画</option>
+			<option value='海外映画'>海外映画</option>
+			<option value='日本ドラマ'>国内ドラマ</option>
+			<option value='海外ドラマ'>海外ドラマ</option>
+			<option value='その他'>その他</option>
+		</select>
+		</label></p>
+		<p><label>備考:<br><textarea name="note" rows='4' cols='50'></textarea></label></p>
+		<p><input type="submit" value="追加"></p>
+	</form>
+
+<!-- 更新確認を兼ねた更新履歴の表 -->
+	<div id='table_history'></div>
+
+</div><!-- class='tab_content id='add_content -->
+
+
+
+<!-- 検索 -->
+<div class='tab_content' id='search_content'>
+	<form name='search_form' onsubmit='table_search("table_search")'>
+		<label>タイトル: <input type='text' name='title' size='40'></label>
+		<label>分類: <select name='category'>
+			<option value='すべて'>すべて</option>
+			<option value='日本映画'>日本映画</option>
+			<option value='海外映画'>海外映画</option>
+			<option value='日本ドラマ'>日本ドラマ</option>
+			<option value='海外ドラマ'>海外ドラマ</option>
+			<option value='その他'>その他</option>
+		</select></label>
+		<input type='submit' value='検索'>
+	</form>
+
+<!-- 検索結果の表 -->
+
+	<div id='table_search'></div>
+</div> <!-- class='tab_contetn' id='search_content' -->
+
+
+</div><!-- tabs -->
+
+
+<!-- Javescript -->
+<script src="http://code.jquery.com/jquery-3.3.1.js"></script>
+<script type='text/javascript' src='/eel.js'></script>
+
+
+<script type='text/javascript'>
+
+//表の作成
+function maketable(data, tableID){
+	var rows=[];
+	var table = document.createElement("table");
+
+    // 表に2次元配列の要素を格納
+    for(i = 0; i < data.length; i++){
+        rows.push(table.insertRow(-1));  // 行の追加
+        for(j = 0; j < 4; j++){
+            cell=rows[i].insertCell(-1);
+            cell.appendChild(document.createTextNode(data[i][j]));
+            // 背景色の設定
+            if(i==0){
+                cell.style.backgroundColor = "#ddd"; // ヘッダ行
+            }else{
+                cell.style.backgroundColor = "#ddd"; // ヘッダ行以外
+            }//ヘッダをどうにかしないといけないけど、それはあとで
+        }
+    }
+    // 指定したdiv要素に表を加える
+    document.getElementById(tableID).appendChild(table);
+}
+
+
+//全件表示用の表を作成
+async function table_all(tableID){
+	var data = await eel.show_all()();
+	maketable(data, tableID);
+}
+
+//追加タブ用更新履歴の表を作成
+async function table_history(tableID){
+	var data = await eel.history()();
+	maketable(data, tableID);
+}
+
+
+//検索タブ用の表の作成
+async function table_search(tableID){
+	var data = await eel.search()();
+	maketable(data, tableID);
+}
+
+
+//データベースへの追加
+function add(){
+	var pushdata = [];
+	pushdata.push(document.add_form.title.value);
+	pushdata.push(document.add_form.title_ruby.value);
+	pushdata.push(document.add_form.category.value);
+	pushdata.push(document.add_form.note.value);
+	alert(pushdata);
+	eel.add_record(pushdata);
+	}
+
+function openwin(){
+		window.open('./detail.html', '', 'width=500, height=400');
+	}
+
+window.onload = async function(){
+	table_history('table_history');
+}
+</script>
+
+
+
+</body>
+</html>
