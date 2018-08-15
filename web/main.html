@@ -7,21 +7,20 @@
 <body>
 
 <div  calss='tabs'>
-	<input id='tab_show' type='radio' name='tab_item' onclick='table_all("table_all")'>
+	<input id='tab_show' type='radio' name='tab_item' onclick='update_checked(1)'>
 	<label class='tab_item' for='tab_show'>表示</label>
 	
-	<input id='tab_add' type='radio' name='tab_item' checked>
+	<input id='tab_add' type='radio' name='tab_item' onclick='update_checked(2)'>
 	<label class='tab_item' for='tab_add'>追加</label>
 
-	<input id='tab_search' type='radio' name='tab_item'>
+	<input id='tab_search' type='radio' name='tab_item' onclick='update_checked(3)'>
 	<label class='tab_item' for='tab_search'>検索</label>
 
 <!-- 以下コンテンツ -->
 
 <!-- 表の表示 -->
 <div class='tab_content' id='show_content'>
-	<div id='table_all'>
-	</div>
+	<div id='table_all'></div>
 
 
 </div> <!-- class='tab_content id='show_contetn' -->
@@ -32,9 +31,9 @@
 		<p><label>タイトル:<br><input type="text" name="title" size='40'></label></p>
 		<p><label>ふりがな(ソート用のため一部のみ可):<br><input type='text' name='title_ruby' size=40></label></p>
 		<p><label>カテゴリー:<br><select name="category">
-			<option value='日本映画'>国内映画</option>
+			<option value='日本映画'>日本映画</option>
 			<option value='海外映画'>海外映画</option>
-			<option value='日本ドラマ'>国内ドラマ</option>
+			<option value='日本ドラマ'>日本ドラマ</option>
 			<option value='海外ドラマ'>海外ドラマ</option>
 			<option value='その他'>その他</option>
 		</select>
@@ -52,7 +51,7 @@
 
 <!-- 検索 -->
 <div class='tab_content' id='search_content'>
-	<form name='search_form' onsubmit='table_search("table_search")'>
+	<form name='search_form' onsubmit='search_data_updata()'>
 		<label>タイトル: <input type='text' name='title' size='40'></label>
 		<label>分類: <select name='category'>
 			<option value='すべて'>すべて</option>
@@ -67,11 +66,12 @@
 
 <!-- 検索結果の表 -->
 
-	<div id='table_search'></div>
+	<div id='search_result'></div>
 </div> <!-- class='tab_contetn' id='search_content' -->
 
 
 </div><!-- tabs -->
+
 
 
 <!-- Javescript -->
@@ -85,6 +85,9 @@
 function maketable(data, tableID){
 	var rows=[];
 	var table = document.createElement("table");
+	// if(document.getElementById(tableID).hasChildNodes() == true){
+	//	document.getElementById(tableID).removeChild("table");
+	//}
 
     // 表に2次元配列の要素を格納
     for(i = 0; i < data.length; i++){
@@ -119,6 +122,13 @@ async function table_history(tableID){
 
 
 //検索タブ用の表の作成
+async function search_data_updata(){
+	var q_data = [];
+	q_data.push(document.search_form.title.value);
+	q_data.push(document.search_form.category.value);
+	eel.search_update(q_data);
+}
+
 async function table_search(tableID){
 	var data = await eel.search()();
 	maketable(data, tableID);
@@ -132,16 +142,26 @@ function add(){
 	pushdata.push(document.add_form.title_ruby.value);
 	pushdata.push(document.add_form.category.value);
 	pushdata.push(document.add_form.note.value);
-	alert(pushdata);
 	eel.add_record(pushdata);
-	}
+}
 
+// 各データの編集画面は新しくウインドウを開くよ
 function openwin(){
-		window.open('./detail.html', '', 'width=500, height=400');
-	}
+	window.open('./detail.html', '', 'width=500, height=400');
+}
 
+function update_checked(num){
+	eel.check_update(num);
+}
+
+// 開いた時と更新したときに動くよ
 window.onload = async function(){
+	table_all('table_all');
 	table_history('table_history');
+	table_search("search_result");
+	var radio_check = document.getElementsByName("tab_item");
+	var radio_num = await eel.check_checked()();
+	radio_check[radio_num-1].checked = true;
 }
 </script>
 
