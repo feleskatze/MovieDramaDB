@@ -2,6 +2,8 @@
 
 import sqlite3
 import eel
+import copy
+from pykakasi import kakasi, wakati
 
 
 web_app_option = {
@@ -37,8 +39,11 @@ def add_record(data):
 def show_all():
     result = []
     for i in ('日本映画', '海外映画', '日本ドラマ', '海外ドラマ', 'その他'):
-        cur.execute('SELECT * FROM MDLIST WHERE category=?', (i,))
-        result = result + cur.fetchall()
+        cur.execute('SELECT *, ROWID FROM MDLIST WHERE category=?', (i,))
+        i_res = cur.fetchall()
+        if i_res is not None:
+            i_res.sort(key=lambda x:x[1])
+        result = result + i_res
     return result
 
 
@@ -47,7 +52,7 @@ search_data = []
 @eel.expose
 def search_update(data):
     global search_data
-    search_data = data
+    search_data = copy.deepcopy(data)
 
 
 # 検索
@@ -55,9 +60,11 @@ def search_update(data):
 def search():
     global search_data
     if len(search_data) == 2 and search_data[1] == 'すべて':
-        cur.execute('SELECT * FROM MDLIST WHERE title=?', (search_data[0],))
+        search_data[0] = '%' + search_data[0] + '%'
+        cur.execute('SELECT *, ROWID FROM MDLIST WHERE title LIKE ?', (search_data[0],))
     elif len(search_data) == 2:
-        cur.execute('SELECT * FROM MDLIST WHERE title=? AND category=?', (search_data,))
+        search_data[0] = '%' + search_data[0] + '%'
+        cur.execute('SELECT *, ROWID FROM MDLIST WHERE title LIKE ? AND category=?', (search_data,))
     else:
         return 0
     return cur.fetchall()
@@ -65,7 +72,7 @@ def search():
 # 履歴表示
 @eel.expose
 def history():
-    cur.execute('SELECT * FROM MDLIST ORDER BY updatetime DESC LIMIT 10')
+    cur.execute('SELECT *, ROWID FROM MDLIST ORDER BY updatetime DESC LIMIT 10')
     return cur.fetchall()
 
 # タブフラグ管理がJavaでうまくできないのでこっちでやる
@@ -74,7 +81,6 @@ checked_num = 2 # 全件表示:1 追加:2 検索:3
 @eel.expose
 def check_checked():
     global checked_num
-    print(checked_num)
     return checked_num
 
 @eel.expose
