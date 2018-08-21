@@ -12,12 +12,12 @@
 
 /*タブスタイル*/
 .tab_item{
-	width: calc(100%/3);
+	width: calc(100%/2);
 	height: 40px;
 	border-bottom: 3px solid #5ab4bd;
 	background-color: #d9d9d9;
 	line-height: 50px;
-	font-size: 16px;
+	font-align: 16px;
 	text-align: center;
 	color: #565656;
 	display: block;
@@ -43,9 +43,8 @@ input[name='tab_item'] {
 }
 
 /* 選択されているタブのコンテンツのみを表示 */
-#tab_show:checked ~ #show_content,
-#tab_add:checked ~ #add_content,
-#tab_search:checked ~ #search_content {
+#tab_detail:checked ~ #detail_content,
+#tab_edit:checked ~ #edit_content{
 	display: block;
 }
 
@@ -54,18 +53,3 @@ input[name='tab_item'] {
 		background-color: #5ab4bd;
 		color: #fff;
 	}
-
-
-td {
-	border: solid 1px;  /* 枠線指定 */
-	padding: 10px;      /* 余白指定 */
-}
-
-tr:nth-child(even){
-	background: #ff0;
-}
-
-table {
-    border-collapse: separate;  /* 表の線と線の間を空ける */
-    border-spacing: 20px;       /* 表の線と線の間の幅 */
-}

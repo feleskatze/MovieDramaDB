@@ -31,7 +31,7 @@
 <div class='tab_content' id="add_content">
 	<form name='add_form' onsubmit='add()'>
 		<p><label>タイトル:<br><input type="text" name="title" size='40'></label></p>
-		<p><label>ふりがな(ソート用・頭文字だけ表示):<br><input type='text' name='title_ruby' size=40></label></p>
+		<p><label>ふりがな:<br><input type='text' name='title_ruby' size=40></label></p>
 		<p><label>カテゴリー:<br><select name="category">
 			<option value='日本映画'>日本映画</option>
 			<option value='海外映画'>海外映画</option>
@@ -93,18 +93,18 @@ function maketable(data, tableID){
 		for(j of [5, 2, 1, 0, 3] ){ // ID Category Title_ruby Title Note
         	rows.push(table.insertRow(-1));  // 行の追加
         	cell=rows[i].insertCell(-1);
-			if(j==1){
+			if(j==1){ // Title_ruby
 				cell.appendChild(document.createTextNode(data[i][j].slice(0, 1))); //頭文字
+			}else if(j==5){ // ID
+				var link = document.createElement('a');
+				link.href = 'javascript:void(0)';
+				link.setAttribute('onclick', 'openwin(' + data[i][j] + ');');
+				link.appendChild(document.createTextNode(data[i][j]));
+				cell.appendChild(link);
 			}else{
 				cell.appendChild(document.createTextNode(data[i][j]));
 			}
 
-			// 背景色の設定
-			if(i==0){
-				cell.style.backgroundColor = "#ddd"; // ヘッダ行
-			}else{
-				cell.style.backgroundColor = "#ddd"; // ヘッダ行以外
-			}//ヘッダをどうにかしないといけないけど、それはあとで
 		}
     }
     // 指定したdiv要素に表を加える
@@ -149,13 +149,12 @@ function add(){
 	eel.add_record(pushdata);
 }
 
-// 各データ編集画面に行くためにタイトルかIDをクリックすると、その値を取得して編集画面へ
-// jQueryを使うらしい
+
 
 
 // 各データの編集画面は新しくウインドウを開くよ
-function openwin(){
-	window.open('./detail.html', '', 'width=500, height=400');
+function openwin(ID){
+	window.open('./detail.html?' + ID, '', 'width=600, height=800');
 }
 
 // タブフラグをPythonに送る

@@ -34,6 +34,20 @@ def add_record(data):
     cur.execute('INSERT INTO MDLIST (title, title_ruby, category, note, updatetime) VALUES(?,?,?,?,CURRENT_TIMESTAMP)', data)
     conn.commit()
 
+# 更新
+@eel.expose
+def update_data(id_num, data):
+    data.append(id_num)
+    print(data)
+    cur.execute('UPDATE MDLIST SET title = ?, title_ruby = ?, category = ?, note = ?, updatetime = CURRENT_TIMESTAMP WHERE ROwID = ?', data)
+    conn.commit()
+
+# 削除
+@eel.expose
+def delete_data(id_num):
+    cur.execute('DELETE FROM MDLIST WHERE ROWID = ?', (id_num,))
+    conn.commit()
+
 # 全件取得
 @eel.expose
 def show_all():
@@ -59,14 +73,25 @@ def search_update(data):
 @eel.expose
 def search():
     global search_data
-    if len(search_data) == 2 and search_data[1] == 'すべて':
+    if len(search_data) != 2:
+        pass
+    elif search_data[0] != None and search_data[1] == 'すべて':
         search_data[0] = '%' + search_data[0] + '%'
         cur.execute('SELECT *, ROWID FROM MDLIST WHERE title LIKE ?', (search_data[0],))
-    elif len(search_data) == 2:
+    elif search_data[0] != None and search_data[1] != 'すべて':
         search_data[0] = '%' + search_data[0] + '%'
         cur.execute('SELECT *, ROWID FROM MDLIST WHERE title LIKE ? AND category=?', (search_data,))
+    elif search_data[0] == None and search_data[1] == 'すべて':
+        cur.execute('SELECT *, ROWID FROM MDLIST')
+    elif search_data[0] == None and search_data[1] != 'すべて':
+        cur.execute('SELECT *, ROWID FROM MDLIST WHERE category=?', (search_data[1], ) )
     else:
         return 0
+    return cur.fetchall()
+
+@eel.expose
+def id_search(id):
+    cur.execute('SELECT *, ROWID FROM MDLIST WHERE ROWID=?', (id,))
     return cur.fetchall()
 
 # 履歴表示

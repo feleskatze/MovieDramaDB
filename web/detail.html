@@ -2,9 +2,123 @@
 <head>
 	<meta charset='utf-8'>
 	<title>詳細画面</title>
-	<link rel='stylesheet' type='text/css' href='css/main.css'>
+	<link rel='stylesheet' type='text/css' href='css/detail.css'>
 </head>
 <body>
-わんわん
+		<div  calss='tabs'>
+				<input id='tab_detail' type='radio' name='tab_item' checked>
+				<label class='tab_item' for='tab_detail'>詳細表示</label>
+				
+				<input id='tab_edit' type='radio' name='tab_item'>
+				<label class='tab_item' for='tab_edit'>編集</label>
+			
+			<!-- 以下コンテンツ -->
+			
+			<!-- 詳細の表示 -->
+			<div class='tab_content' id='detail_content'>
+				<div id='detail_table'></div>
+			
+			
+			</div> <!-- class='tab_content id='detail_content' -->
+			
+			<!-- 編集 -->
+			<div class='tab_content' id="edit_content">
+				<form name='edit' id='edit_form'>
+					<p><label>タイトル:<br><input type="text" name="title" size='40'></label></p>
+					<p><label>ふりがな:<br><input type='text' name='title_ruby' size=40></label></p>
+					<p><label>カテゴリー:<br><select name="category">
+						<option value='日本映画'>日本映画</option>
+						<option value='海外映画'>海外映画</option>
+						<option value='日本ドラマ'>日本ドラマ</option>
+						<option value='海外ドラマ'>海外ドラマ</option>
+						<option value='その他'>その他</option>
+					</select>
+					</label></p>
+					<p><label>備考:<br><textarea name="note" rows='4' cols='50'></textarea></label></p>
+					<p><input type="submit" value="更新"></p>
+				</form>
+
+				<hr>
+				<button type='button' id='delete'>削除</button>
+			
+			</div><!-- class='tab_content id='edit_content -->
+			
+						
+			
+			</div><!-- tabs -->
+
+
+<script src="http://code.jquery.com/jquery-3.3.1.js"></script>
+<script type='text/javascript' src='/eel.js'></script>
+
+<script type='text/javascript'>
+
+function maketable(data, tableID){
+	var rows=[];
+	var table = document.createElement("table");
+	var index = ['タイトル', 'ふりがな', '分類', '備考','更新日', 'ID']
+    for(i = 0; i < index.length; i++){
+		rows.push(table.insertRow(-1)); 
+		cell1 = rows[i].insertCell(-1);
+		cell1.appendChild(document.createTextNode(index[i]));
+		cell2 = rows[i].insertCell(-1);
+		cell2.appendChild(document.createTextNode(data[0][i]));
+	
+    }
+    // 指定したdiv要素に表を加える
+    document.getElementById(tableID).appendChild(table);
+}
+
+
+function form(data, id){
+	var form = document.getElementById('edit_form');
+	form.setAttribute('onsubmit', 'edit_update('+ id + ');'); 
+	form.setAttribute('acrion', './detail.html?' + id);
+	document.edit.title.value = data[0][0];
+	document.edit.title_ruby.value = data[0][1];
+	document.edit.category.value = data[0][2];
+	document.edit.note.value = data[0][3];
+
+	var delete_button = document.getElementById('delete');
+	delete_button.setAttribute('onclick', 'edit_delete('+ id +');');
+
+}
+
+function edit_update(id){
+	var update_data = [];
+	update_data.push(document.edit.title.value);
+	update_data.push(document.edit.title_ruby.value);
+	update_data.push(document.edit.category.value);
+	update_data.push(document.edit.note.value);
+
+	var check = confirm('以下の内容でデータを更新します。\nタイトル: ' + update_data[0] + '\nふりがな: ' + update_data[1] + '\n分類: ' + update_data[2] + '\n備考: ' + update_data[3]);
+	if(check == true){
+		eel.update_data(id, update_data);
+		location.href = location.href;
+	}else{
+
+	}
+}
+
+
+function edit_delete(id){
+	var check = confirm('削除します');
+	if(check == true){
+		eel.delete_data(id);
+		alert('完了しました');
+		window.open('about:blank','_self').close();
+	}else{
+
+	}
+}
+
+window.onload = async function(){
+	var ID = decodeURIComponent(location.search.split('?')[1]);
+	var data = await eel.id_search(ID)();
+	maketable(data, 'detail_table');
+	form(data, ID);
+}
+</script>
+
 </body>
 </html>
